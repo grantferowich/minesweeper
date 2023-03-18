@@ -1,11 +1,17 @@
+/* .table-container {
+    width: 60%;
+    height: 400px;
+} */
 table {
     border-collapse: collapse;
     border: 1px solid black;
     margin: 0 auto;
+    width: 80%;
+    max-width: 400px;
+    height: 100%;
   }
   
-  th,
-  td {
+th, td {
     border: 1px solid black;
     padding: 10px;
   }
