@@ -1,6 +1,14 @@
 import React from 'react';
 import './Grid.css';
 
+class CellObj{
+    constructor(keyStr=''){
+        this.keyStr = keyStr;
+        this.defaultValStr = "?";
+        this.realValueInt= 0;
+        this.exposedTorF = false
+    }
+}
 export default function Grid() {
     // nInt -> N by N dimension grid
     const nInt = 7;
@@ -8,12 +16,6 @@ export default function Grid() {
     const bombsInt = 3;
     let bombCoordinatesArr = []
     // cell object for handling state changes after click events
-    let cellObj = {
-        keyStr: {},
-        defaultValStr: "?",
-        realValueStrOrInt: 0,
-        exposedTorF: false
-    }
     // array of arrays for initializing the grid 
     let arrayOfArrays = [];
 
@@ -21,8 +23,12 @@ export default function Grid() {
     for (let xInt = 0; xInt < nInt; xInt++){
         let row = [];
         for (let yInt = 0; yInt < nInt; yInt++){
-            cellObj.keyStr = `${xInt}-${yInt}`;
+            let cellObj = new CellObj()
+            let keyStr = `${xInt}-${yInt}`;
+
+            cellObj.keyStr = keyStr
             row.push({cellObj})
+
         }
         arrayOfArrays.push(row)
     }
@@ -34,12 +40,12 @@ export default function Grid() {
 
     // updates bombCoordinatesArr
     const generateBombCoordinatesArr = () => {
-            let bombMap = new Map()
-            let bombCountInt = 0
+            let bombMap = new Map();
+            let bombCountInt = 0;
             // populate bombMap 
-            while(bombCountInt < this.bInt){
-                const rowInt = this.generateRandomCoordinateInt()
-                const colInt = this.generateRandomCoordinateInt()
+            while(bombCountInt < bombsInt){
+                const rowInt = generateRandomCoordinateInt()
+                const colInt = generateRandomCoordinateInt()
                 let coordinatePairStr = rowInt.toString() + ',' + colInt.toString()
                 if (!bombMap.has(coordinatePairStr)){
                     // add new coords to map
@@ -53,16 +59,15 @@ export default function Grid() {
 
     // helper method for updating bombCoordinatesArr
     const convertMapToCoordinatesArr = (bombMap) => {
-            for (let [kInt, v] of bombMap){
+            for (let [kInt] of bombMap){
                 let coordinatesPair0Int = parseInt(kInt.split(',')[0])
                 let coordinatesPair1Int = parseInt(kInt.split(',')[1])
                 bombCoordinatesArr.push([coordinatesPair0Int, coordinatesPair1Int])
             }
     }
 
-    const getCellValue = (row, col) => {
-        /// which value? haha
-        return arrayOfArrays[row][col]
+    const getCellValue = (rowInt, colInt) => {
+        return arrayOfArrays[rowInt][colInt]['realValueInt']
     }
 
     // util method for updating array of arrays
@@ -70,20 +75,67 @@ export default function Grid() {
         // down, right, up, left, bottom right diag, bottom left diag, top left, top right
         let coordinatesArr = [[1, 0], [0, 1], [-1, 0], [0, -1], [ 1, 1], [1, -1], [-1, -1,], [-1, 1]];
         let countInt = 0;
-        let x = 0;
-        while (x < coordinatesArr.length){
-            let rowCoordinateToCheckInt = rowInt + coordinatesArr[x][0];
-            let colCoordinateToCheckInt = colInt + coordinatesArr[x][1];
+        let xInt = 0;
+        while (xInt < coordinatesArr.length){
+            let rowCoordinateToCheckInt = rowInt + coordinatesArr[xInt][0];
+            let colCoordinateToCheckInt = colInt + coordinatesArr[xInt][1];
             if (rowCoordinateToCheckInt >= 0 && rowCoordinateToCheckInt < nInt && colCoordinateToCheckInt >= 0 && colCoordinateToCheckInt < nInt){
                 let cellValueToCheckStr = getCellValue(rowCoordinateToCheckInt, colCoordinateToCheckInt);
                 if (cellValueToCheckStr === '*'){
                     countInt++;
                 }
             }
-            x++
+            xInt++
         }
         return countInt
     }
+
+    const updateCellValue = (rowInt, colInt, val) => {
+
+        arrayOfArrays[rowInt][colInt]['realValueInt'] = val
+    }    
+
+    // update class property, storageArr
+    const setBombsOnGridArr = () => {
+            let xInt = 0;
+            while (xInt < bombCoordinatesArr.length){
+                let rowInt = bombCoordinatesArr[xInt][0];
+                let colInt = bombCoordinatesArr[xInt][1];
+                updateCellValue(rowInt, colInt, "*");
+                xInt++;
+            }
+    }
+
+    const setNumbersOnGridArr = () => {
+        for (let rowInt = 0; rowInt < nInt; rowInt++){
+            for (let colInt = 0; colInt < nInt; colInt++){
+                let cellObj = arrayOfArrays[rowInt][colInt]
+
+                let valInt = getBombCountOfCellInt(rowInt, colInt)
+                if (cellObj['realValueInt'] !== "*"){
+                    updateCellValue(rowInt, colInt, valInt)
+                }
+            }
+        }
+    }
+
+    // const viewCellInfo = () => {
+    //     for (let rowInt=0; rowInt < nInt; rowInt){
+    //         for (let colInt = 0; colInt<nInt; colInt){
+    //             console.log('cellObj', cellObj)
+    //         }
+    //     }
+    // }
+
+    // initialization sequence
+    generateBombCoordinatesArr();
+    setBombsOnGridArr();
+    setNumbersOnGridArr();
+    console.log('bombCoordinatesArr', bombCoordinatesArr)
+    console.log('arrrayOfArrays', arrayOfArrays)
+
+
+    
 
   return (
     <div>
@@ -91,7 +143,7 @@ export default function Grid() {
             <tbody>
                 {arrayOfArrays.map((row, rowIndex) => (
                     <tr key={`row-${rowIndex}`}>
-                        {row.map((cell, cellIndex) => (
+                        {row.map((cellObj, cellIndex) => (
                             <td key={`cell-${cellIndex}`}>{cellObj.defaultValStr}</td>
                         ))}
                     </tr>
