@@ -1,34 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './Grid.css';
+import CellObj from './CellObj';
 
-class CellObj{
-    constructor(keyStr=''){
-        this.keyStr = keyStr;
-        this.defaultValStr = "?";
-        this.realValueInt= 0;
-        this.exposedTorF = false
-    }
-}
+
 export default function Grid() {
     // nInt -> N by N dimension grid
     const nInt = 7;
     // # of bombs on the grid
     const bombsInt = 3;
-    let bombCoordinatesArr = []
+    let [bombCoordinatesArr, setBombCoordinatesArr] = useState([])
     // cell object for handling state changes after click events
     // array of arrays for initializing the grid 
-    let arrayOfArrays = [];
+    let [arrayOfArrays, setArrayOfArrays] = useState([]);
 
     // populate array of arrays with cell objects
     for (let xInt = 0; xInt < nInt; xInt++){
         let row = [];
         for (let yInt = 0; yInt < nInt; yInt++){
-            let cellObj = new CellObj()
             let keyStr = `${xInt}-${yInt}`;
-
-            cellObj.keyStr = keyStr
-            row.push({cellObj})
-
+            row.push(<CellObj keyStr={keyStr}/>)
         }
         arrayOfArrays.push(row)
     }
@@ -67,7 +57,9 @@ export default function Grid() {
     }
 
     const getCellValue = (rowInt, colInt) => {
-        return arrayOfArrays[rowInt][colInt]['realValueInt']
+        let x = arrayOfArrays[rowInt][colInt]
+        console.log(x)
+        return 
     }
 
     // util method for updating array of arrays
@@ -91,9 +83,23 @@ export default function Grid() {
     }
 
     const updateCellValue = (rowInt, colInt, val) => {
-
-        arrayOfArrays[rowInt][colInt]['realValueInt'] = val
+        let keyStr = `${rowInt}-${colInt}`;
+        setArrayOfArrays(prevState => {
+            return prevState.map(row => {
+                return row.map(cell => {
+                    if (cell.keyStr === keyStr){
+                        return {...cell, realValueInt: val}
+                    } else {
+                        return cell;
+                    }
+                })
+            })
+        })
     }    
+
+    const updateCellExposedState = (rowInt, colInt, valToF) => {
+        return arrayOfArrays[rowInt][colInt].exposedTorF = valToF;
+    }
 
     // update class property, storageArr
     const setBombsOnGridArr = () => {
@@ -112,30 +118,33 @@ export default function Grid() {
                 let cellObj = arrayOfArrays[rowInt][colInt]
 
                 let valInt = getBombCountOfCellInt(rowInt, colInt)
-                if (cellObj['realValueInt'] !== "*"){
+                if (cellObj['realValueInt'] !== "*" ){
                     updateCellValue(rowInt, colInt, valInt)
                 }
             }
         }
     }
 
-    // const viewCellInfo = () => {
-    //     for (let rowInt=0; rowInt < nInt; rowInt){
-    //         for (let colInt = 0; colInt<nInt; colInt){
-    //             console.log('cellObj', cellObj)
-    //         }
-    //     }
-    // }
+    const handleClick = (cellObj) => {
+       console.log('hi')
+        let keyStr = cellObj.keyStr
+        let rowInt = parseInt(keyStr.split('-')[0])
+        let colInt = parseInt(keyStr.split('-')[1])
+        updateCellExposedState(rowInt, colInt, true)
+        console.log('later')
+        cellObj.defaultValStr = cellObj.realValueInt.toString()
+        // let valInt = cellObj.realValueInt
+        // cellObj.defaultValStr = valInt
+        // console.log(cellObj)
+    }
 
-    // initialization sequence
+    // initialization sequence: place bombs and numbers as 
     generateBombCoordinatesArr();
     setBombsOnGridArr();
     setNumbersOnGridArr();
-    console.log('bombCoordinatesArr', bombCoordinatesArr)
-    console.log('arrrayOfArrays', arrayOfArrays)
-
-
-    
+    console.log(arrayOfArrays);    
+    console.log('getCellValue, 0,0 -- ')
+    getCellValue(0,0)
 
   return (
     <div>
@@ -143,8 +152,8 @@ export default function Grid() {
             <tbody>
                 {arrayOfArrays.map((row, rowIndex) => (
                     <tr key={`row-${rowIndex}`}>
-                        {row.map((cellObj, cellIndex) => (
-                            <td key={`cell-${cellIndex}`}>{cellObj.defaultValStr}</td>
+                        {row.map((cellObj) => (
+                            <td key={cellObj.keyStr} onClick={() => handleClick(cellObj)}>{cellObj.exposedTorF ? cellObj.realValueInt: cellObj.defaultValStr}</td>
                         ))}
                     </tr>
                 ))}
