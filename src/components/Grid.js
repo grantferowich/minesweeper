@@ -135,10 +135,13 @@ export default function Grid() {
 
     // ## RENDER STATE
     useEffect(() => {
-        setTimeout(() => {
-            memoizePopulateArrayOfArrays();;
-            memoizeGenerateBombCoordinatesArr();     
-        },0)
+            memoizePopulateArrayOfArrays();
+            console.log('arrayOfArrays', arrayOfArrays)
+            memoizeGenerateBombCoordinatesArr();    
+            console.log('bombArr', bombArr)
+            // do something to update the array of arrays to include bombs
+            // do stuff to update the array of arrays to include bombs
+        
     }, []);
         
       
