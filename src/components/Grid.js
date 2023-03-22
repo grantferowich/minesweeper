@@ -94,12 +94,7 @@ export default function Grid() {
     //     const updatedCellObj = React.cloneElement(cellObj, { realValueInt: val});
     //     newArrayOfArrays[rowInt][colInt] = updatedCellObj;
     //     setArrayOfArrays(newArrayOfArrays)
-    // }    
-
-    // ## UPDATE STATE
-    // const updateCellExposedState = (rowInt, colInt, valToF) => {
-    //     // arrayOfArrays[rowInt][colInt].exposedTorF = valToF;
-    // }
+    // }     
 
     // UPDATE STATE
     // const setBombsOnGridArr = () => {
