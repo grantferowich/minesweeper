@@ -40,11 +40,11 @@ export default function Grid() {
     }
 
     // ## UPDATE STATE
-    // const exposeCell = (rowInt, colInt) => {
-    //     let newArrayOfArrays = arrayOfArrays
-    //     newArrayOfArrays[rowInt][colInt].exposedToF = true
-    //     setArrayOfArrays(newArrayOfArrays);
-    // }
+    const exposeCell = (rowIndex, colIndex) => {
+        let newArrayOfArrays = [...arrayOfArrays]
+        newArrayOfArrays[rowIndex][colIndex].exposedToF = true
+        setArrayOfArrays(newArrayOfArrays);
+    }
 
     // ## UPDATE STATE
     const memoizeGenerateBombCoordinatesArr = useCallback(() => {
@@ -128,9 +128,10 @@ export default function Grid() {
 
     // ## HANDLE EVENTS
     const handleClick = (rowIndex, colIndex) => {
-        let newArrayOfArrays = [...arrayOfArrays]
-        newArrayOfArrays[rowIndex][colIndex].exposedToF = true
-        setArrayOfArrays(newArrayOfArrays);
+        // let newArrayOfArrays = [...arrayOfArrays]
+        // newArrayOfArrays[rowIndex][colIndex].exposedToF = true
+        // setArrayOfArrays(newArrayOfArrays);
+        exposeCell(rowIndex, colIndex)
     }
 
     // ## RENDER STATE
