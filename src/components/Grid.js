@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import './Grid.css';
-import CellObj from './CellObj';
 
 
 export default function Grid() {
@@ -8,7 +7,6 @@ export default function Grid() {
     const nInt = 7;
     // # of bombs on the grid
     const bombsInt = 3;
-    let [bombCoordinatesArr, setBombCoordinatesArr] = useState([])
     // cell object for handling state changes after click events
     // array of arrays for initializing the grid 
     let [arrayOfArrays, setArrayOfArrays] = useState([]);
@@ -30,9 +28,10 @@ export default function Grid() {
           }
           newArrayOfArrays.push(row);
         }
+        console.log('arrayOfArrays', newArrayOfArrays)
         setArrayOfArrays(newArrayOfArrays)
-    }, [])
 
+    }, [])
 
     // ## UPDATE STATE
     const generateRandomCoordinateInt = () => {
@@ -88,24 +87,30 @@ export default function Grid() {
     // }
 
     // ## UPDATE STATE
-    // const updateCellValue = (rowInt, colInt, val) => {
-    //     let newArrayOfArrays = [...arrayOfArrays];
-    //     let cellObj = newArrayOfArrays[rowInt][colInt]
-    //     const updatedCellObj = React.cloneElement(cellObj, { realValueInt: val});
-    //     newArrayOfArrays[rowInt][colInt] = updatedCellObj;
-    //     setArrayOfArrays(newArrayOfArrays)
-    // }     
+    const updateCellValue = (rowInt, colInt, val) => {
+        rowInt = parseInt(rowInt)
+        colInt = parseInt(colInt)
+        let newArrayOfArrays = [...arrayOfArrays];
+        console.log('newArrayOfArrays[rowInt][colInt].valStrOrInt', newArrayOfArrays[rowInt][colInt].valStrOrInt)
+        newArrayOfArrays[rowInt][colInt].valStrOrInt = val;
+        setArrayOfArrays(newArrayOfArrays);
+    }     
 
     // UPDATE STATE
-    // const setBombsOnGridArr = () => {
-    //         let xInt = 0;
-    //         while (xInt < bombCoordinatesArr.length){
-    //             let rowInt = bombCoordinatesArr[xInt][0];
-    //             let colInt = bombCoordinatesArr[xInt][1];
-    //             updateCellValue(rowInt, colInt, "*");
-    //             xInt++;
-    //         }
-    // }
+    const updateGridWithBombs = () => {
+            let xInt = 0;
+            while (xInt < bombArr.length){
+                let bombRowColStr = bombArr[xInt]
+                let bombLocationArr = bombRowColStr.split(',')
+                console.log('bombLocationArr', bombLocationArr)
+                let rowInt = parseInt(bombLocationArr[0]);
+                let colInt = parseInt(bombLocationArr[1]);
+                console.log('rowInt', rowInt)
+                console.log('colInt', colInt)
+                updateCellValue(rowInt, colInt, "💣");
+                xInt++;
+            }
+    }
 
     // ## UPDATE STATE
     // const setNumbersOnGridArr = () => {
@@ -131,12 +136,11 @@ export default function Grid() {
     // ## RENDER STATE
     useEffect(() => {
             memoizePopulateArrayOfArrays();
-            console.log('arrayOfArrays', arrayOfArrays)
             memoizeGenerateBombCoordinatesArr();    
             console.log('bombArr', bombArr)
             // do something to update the array of arrays to include bombs
+            updateGridWithBombs();
             // do stuff to update the array of arrays to include bombs
-        
     }, []);
         
       
