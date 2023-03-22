@@ -22,7 +22,7 @@ export default function Grid() {
           for (let j = 0; j < 7; j++) {
             const obj = {
               id: i * 7 + j, // unique identifier based on row and column
-              exposedToF: null, // initial value for exposedToF
+              exposedToF: false, // initial value for exposedToF
               defaultValStr: "?", // initial value for defaultValStr
               valStrOrInt: 0 // initial value for valStrOrInt
             };
@@ -40,11 +40,11 @@ export default function Grid() {
     }
 
     // ## UPDATE STATE
-    const exposeCell = (rowInt, colInt) => {
-        let newArrayOfArrays = arrayOfArrays
-        newArrayOfArrays[rowInt][colInt].exposedToF = true
-        setArrayOfArrays(newArrayOfArrays);
-    }
+    // const exposeCell = (rowInt, colInt) => {
+    //     let newArrayOfArrays = arrayOfArrays
+    //     newArrayOfArrays[rowInt][colInt].exposedToF = true
+    //     setArrayOfArrays(newArrayOfArrays);
+    // }
 
     // ## UPDATE STATE
     const memoizeGenerateBombCoordinatesArr = useCallback(() => {
@@ -127,30 +127,18 @@ export default function Grid() {
     // }
 
     // ## HANDLE EVENTS
-    const handleClick = ([rowIndex, colIndex]) => {
-       console.log('hi')
-       console.log('[rowIndex, colIndex]', [rowIndex, colIndex])
-       console.log(arrayOfArrays[rowIndex][colIndex])
-        // let keyStr = cellObj.keyStr
-        // let rowInt = parseInt(keyStr.split('-')[0])
-        // let colInt = parseInt(keyStr.split('-')[1])
-        // updateCellExposedState(rowInt, colInt, true)
-        // console.log('later')
-        // cellObj.defaultValStr = cellObj.realValueInt.toString()
-        // let valInt = cellObj.realValueInt
-        // cellObj.defaultValStr = valInt
-        // console.log(cellObj)
+    const handleClick = (rowIndex, colIndex) => {
+        let newArrayOfArrays = [...arrayOfArrays]
+        newArrayOfArrays[rowIndex][colIndex].exposedToF = true
+        setArrayOfArrays(newArrayOfArrays);
     }
 
     // ## RENDER STATE
     useEffect(() => {
         setTimeout(() => {
             memoizePopulateArrayOfArrays();;
-            memoizeGenerateBombCoordinatesArr();
-            
+            memoizeGenerateBombCoordinatesArr();     
         },0)
-        console.log('//// Debug arrayOfArrays', arrayOfArrays);
-        console.log('/// debug bomb coordinates arr', bombCoordinatesArr);
     }, []);
         
       
@@ -171,9 +159,7 @@ export default function Grid() {
                 {arrayOfArrays.map((row, rowIndex) => (
                     <tr key={`row-${rowIndex}`}>
                         {row.map((col, colIndex) => (
-                            // <td key={`cell-${rowIndex}-${colIndex}`} onClick={() => handleClick([rowIndex, colIndex])}>{arrayOfArrays[rowIndex][colIndex]['defaultValStr']}</td>
-                            <td key={`${arrayOfArrays[rowIndex][colIndex].id}`} onClick={() => handleClick([rowIndex, colIndex])}>{arrayOfArrays[rowIndex][colIndex].defaultValStr}</td>
-                            // <td>{arrayOfArrays[rowIndex][colIndex]}</td>
+                            <td key={`${arrayOfArrays[rowIndex][colIndex].id}`} onClick={() => handleClick(rowIndex, colIndex)}> {arrayOfArrays[rowIndex][colIndex].exposedToF ? arrayOfArrays[rowIndex][colIndex].valStrOrInt : arrayOfArrays[rowIndex][colIndex].defaultValStr}</td>
                         ))}
                     </tr>
                 ))}
