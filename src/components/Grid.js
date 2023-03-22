@@ -12,21 +12,9 @@ export default function Grid() {
     // cell object for handling state changes after click events
     // array of arrays for initializing the grid 
     let [arrayOfArrays, setArrayOfArrays] = useState([]);
-    let [bombMap, setBombMap] = useState(new Map())
+    let [bombArr, setBombArr] = useState([])
 
     // populate array of arrays with cell objects
-    // const populateArrayOfArrays = () => {
-    //     for (let xInt = 0; xInt < nInt; xInt++){
-    //         let row = [];
-    //         for (let yInt = 0; yInt < nInt; yInt++){
-    //             let keyStr = `${xInt}-${yInt}`;
-    //             row.push(<CellObj key={keyStr}/>)
-    //         }
-    //         arrayOfArrays.push(row)
-    //     }
-    //     setArrayOfArrays(arrayOfArrays)
-    // }
-
     const memoizePopulateArrayOfArrays = useCallback(() => {
         const newArrayOfArrays = [];
         for (let i = 0; i < 7; i++) {
@@ -42,7 +30,6 @@ export default function Grid() {
           }
           newArrayOfArrays.push(row);
         }
-        console.log(newArrayOfArrays)
         setArrayOfArrays(newArrayOfArrays)
     }, [])
 
@@ -52,53 +39,25 @@ export default function Grid() {
         return parseInt(Math.random() * nInt);
     }
 
-    const updateBombMap = (coordinatePairStr, ToF) => {
-        let newBombMap = new Map(bombMap);
-        newBombMap.set(coordinatePairStr, true)
-        setBombMap(newBombMap);
+    const exposeCell = (rowInt, colInt) => {
+        let newArrayOfArrays = arrayOfArrays
+        newArrayOfArrays[rowInt][colInt].exposedToF = true
+        setArrayOfArrays(newArrayOfArrays);
     }
-    // updates bombCoordinatesArr
-    // const generateBombCoordinatesMap = () => {
-    //         let bombCountInt = 0;
-    //         // populate bombMap 
-    //         while(bombCountInt < bombsInt){
-    //             const rowInt = generateRandomCoordinateInt()
-    //             const colInt = generateRandomCoordinateInt()
-    //             let coordinatePairStr = rowInt.toString() + ',' + colInt.toString()
-    //             if (!bombMap.has(coordinatePairStr)){
-    //                 updateBombMap(coordinatePairStr, true)
-    //                 bombCountInt++
-    //             }
-    //         }
-    //         // get an array of arrays out of the bombMap
-    //         // return convertMapToCoordinatesArr(bombMap)
-    // }
 
-    const memoizeGenerateBombCoordinatesMap = useCallback(() => {
-        let bombCountInt = 0;
-        // populate bombMap 
-        while (bombCountInt < bombsInt){
+    const memoizeGenerateBombCoordinatesArr = useCallback(() => {
+        // populate bombArr
+        while (bombArr.length < bombsInt){
             const rowInt = generateRandomCoordinateInt()
             const colInt = generateRandomCoordinateInt()
             let coordinatePairStr = rowInt.toString() + ',' + colInt.toString()
-            if (!bombMap.has(coordinatePairStr)){
-                console.log('bombCountInt', bombCountInt)
-                updateBombMap(coordinatePairStr, true)
-                bombCountInt++
+            if (!bombArr.includes(coordinatePairStr)){
+                bombArr.push(coordinatePairStr)
             }
         }
+        setBombArr(bombArr)
     },[])
 
-    // helper method for updating bombCoordinatesArr
-    const convertMapToCoordinatesArr = () => {
-            
-            for (let [kInt] of bombMap){
-                let coordinatesPair0Int = parseInt(kInt.split(',')[0])
-                let coordinatesPair1Int = parseInt(kInt.split(',')[1])
-                bombCoordinatesArr.push([coordinatesPair0Int, coordinatesPair1Int])
-            }
-            setBombCoordinatesArr(bombCoordinatesArr)
-    }
 
     const getCellValue = (rowInt, colInt) => {
         return arrayOfArrays[rowInt][colInt]['realValueInt']
@@ -180,11 +139,11 @@ export default function Grid() {
     useEffect(() => {
         setTimeout(() => {
             memoizePopulateArrayOfArrays();;
-            memoizeGenerateBombCoordinatesMap();
-            convertMapToCoordinatesArr();
+            memoizeGenerateBombCoordinatesArr();
+            
         },0)
         console.log('//// Debug arrayOfArrays', arrayOfArrays);
-        console.log('/// debug bomb map', bombMap);
+        console.log('/// debug bomb coordinates arr', bombCoordinatesArr);
     }, []);
         
       
