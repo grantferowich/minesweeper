@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import './Grid.css';
 import CellObj from './CellObj';
 
@@ -12,54 +12,96 @@ export default function Grid() {
     // cell object for handling state changes after click events
     // array of arrays for initializing the grid 
     let [arrayOfArrays, setArrayOfArrays] = useState([]);
+    let [bombMap, setBombMap] = useState(new Map())
 
     // populate array of arrays with cell objects
-    for (let xInt = 0; xInt < nInt; xInt++){
-        let row = [];
-        for (let yInt = 0; yInt < nInt; yInt++){
-            let keyStr = `${xInt}-${yInt}`;
-            row.push(<CellObj keyStr={keyStr}/>)
+    // const populateArrayOfArrays = () => {
+    //     for (let xInt = 0; xInt < nInt; xInt++){
+    //         let row = [];
+    //         for (let yInt = 0; yInt < nInt; yInt++){
+    //             let keyStr = `${xInt}-${yInt}`;
+    //             row.push(<CellObj key={keyStr}/>)
+    //         }
+    //         arrayOfArrays.push(row)
+    //     }
+    //     setArrayOfArrays(arrayOfArrays)
+    // }
+
+    const memoizePopulateArrayOfArrays = useCallback(() => {
+        const newArrayOfArrays = [];
+        for (let i = 0; i < 7; i++) {
+          const row = [];
+          for (let j = 0; j < 7; j++) {
+            const obj = {
+              id: i * 7 + j, // unique identifier based on row and column
+              exposedToF: null, // initial value for exposedToF
+              defaultValStr: "?", // initial value for defaultValStr
+              valStrOrInt: 0 // initial value for valStrOrInt
+            };
+            row.push(obj);
+          }
+          newArrayOfArrays.push(row);
         }
-        arrayOfArrays.push(row)
-    }
+        console.log(newArrayOfArrays)
+        setArrayOfArrays(newArrayOfArrays)
+    }, [])
+
 
     // utility method
     const generateRandomCoordinateInt = () => {
         return parseInt(Math.random() * nInt);
     }
 
-    // updates bombCoordinatesArr
-    const generateBombCoordinatesArr = () => {
-            let bombMap = new Map();
-            let bombCountInt = 0;
-            // populate bombMap 
-            while(bombCountInt < bombsInt){
-                const rowInt = generateRandomCoordinateInt()
-                const colInt = generateRandomCoordinateInt()
-                let coordinatePairStr = rowInt.toString() + ',' + colInt.toString()
-                if (!bombMap.has(coordinatePairStr)){
-                    // add new coords to map
-                    bombMap.set(coordinatePairStr, true)
-                    bombCountInt++
-                }
-            }
-            // get an array of arrays out of the bombMap
-            return convertMapToCoordinatesArr(bombMap)
+    const updateBombMap = (coordinatePairStr, ToF) => {
+        let newBombMap = new Map(bombMap);
+        newBombMap.set(coordinatePairStr, true)
+        setBombMap(newBombMap);
     }
+    // updates bombCoordinatesArr
+    // const generateBombCoordinatesMap = () => {
+    //         let bombCountInt = 0;
+    //         // populate bombMap 
+    //         while(bombCountInt < bombsInt){
+    //             const rowInt = generateRandomCoordinateInt()
+    //             const colInt = generateRandomCoordinateInt()
+    //             let coordinatePairStr = rowInt.toString() + ',' + colInt.toString()
+    //             if (!bombMap.has(coordinatePairStr)){
+    //                 updateBombMap(coordinatePairStr, true)
+    //                 bombCountInt++
+    //             }
+    //         }
+    //         // get an array of arrays out of the bombMap
+    //         // return convertMapToCoordinatesArr(bombMap)
+    // }
+
+    const memoizeGenerateBombCoordinatesMap = useCallback(() => {
+        let bombCountInt = 0;
+        // populate bombMap 
+        while (bombCountInt < bombsInt){
+            const rowInt = generateRandomCoordinateInt()
+            const colInt = generateRandomCoordinateInt()
+            let coordinatePairStr = rowInt.toString() + ',' + colInt.toString()
+            if (!bombMap.has(coordinatePairStr)){
+                console.log('bombCountInt', bombCountInt)
+                updateBombMap(coordinatePairStr, true)
+                bombCountInt++
+            }
+        }
+    },[])
 
     // helper method for updating bombCoordinatesArr
-    const convertMapToCoordinatesArr = (bombMap) => {
+    const convertMapToCoordinatesArr = () => {
+            
             for (let [kInt] of bombMap){
                 let coordinatesPair0Int = parseInt(kInt.split(',')[0])
                 let coordinatesPair1Int = parseInt(kInt.split(',')[1])
                 bombCoordinatesArr.push([coordinatesPair0Int, coordinatesPair1Int])
             }
+            setBombCoordinatesArr(bombCoordinatesArr)
     }
 
     const getCellValue = (rowInt, colInt) => {
-        let x = arrayOfArrays[rowInt][colInt]
-        console.log(x)
-        return 
+        return arrayOfArrays[rowInt][colInt]['realValueInt']
     }
 
     // util method for updating array of arrays
@@ -82,24 +124,18 @@ export default function Grid() {
         return countInt
     }
 
+    // change array of arrays with setArrayOfArrays
     const updateCellValue = (rowInt, colInt, val) => {
-        let keyStr = `${rowInt}-${colInt}`;
-        setArrayOfArrays(prevState => {
-            return prevState.map(row => {
-                return row.map(cell => {
-                    if (cell.keyStr === keyStr){
-                        return {...cell, realValueInt: val}
-                    } else {
-                        return cell;
-                    }
-                })
-            })
-        })
+        let newArrayOfArrays = [...arrayOfArrays];
+        let cellObj = newArrayOfArrays[rowInt][colInt]
+        const updatedCellObj = React.cloneElement(cellObj, { realValueInt: val});
+        newArrayOfArrays[rowInt][colInt] = updatedCellObj;
+        setArrayOfArrays(newArrayOfArrays)
     }    
 
-    const updateCellExposedState = (rowInt, colInt, valToF) => {
-        return arrayOfArrays[rowInt][colInt].exposedTorF = valToF;
-    }
+    // const updateCellExposedState = (rowInt, colInt, valToF) => {
+    //     // arrayOfArrays[rowInt][colInt].exposedTorF = valToF;
+    // }
 
     // update class property, storageArr
     const setBombsOnGridArr = () => {
@@ -118,33 +154,49 @@ export default function Grid() {
                 let cellObj = arrayOfArrays[rowInt][colInt]
 
                 let valInt = getBombCountOfCellInt(rowInt, colInt)
-                if (cellObj['realValueInt'] !== "*" ){
+                if (cellObj['realValueInt'] !== "*"){
                     updateCellValue(rowInt, colInt, valInt)
                 }
             }
         }
     }
 
-    const handleClick = (cellObj) => {
+    const handleClick = ([rowIndex, colIndex]) => {
        console.log('hi')
-        let keyStr = cellObj.keyStr
-        let rowInt = parseInt(keyStr.split('-')[0])
-        let colInt = parseInt(keyStr.split('-')[1])
-        updateCellExposedState(rowInt, colInt, true)
-        console.log('later')
-        cellObj.defaultValStr = cellObj.realValueInt.toString()
+       console.log('[rowIndex, colIndex]', [rowIndex, colIndex])
+       console.log(arrayOfArrays[rowIndex][colIndex])
+        // let keyStr = cellObj.keyStr
+        // let rowInt = parseInt(keyStr.split('-')[0])
+        // let colInt = parseInt(keyStr.split('-')[1])
+        // updateCellExposedState(rowInt, colInt, true)
+        // console.log('later')
+        // cellObj.defaultValStr = cellObj.realValueInt.toString()
         // let valInt = cellObj.realValueInt
         // cellObj.defaultValStr = valInt
         // console.log(cellObj)
     }
 
     // initialization sequence: place bombs and numbers as 
-    generateBombCoordinatesArr();
-    setBombsOnGridArr();
-    setNumbersOnGridArr();
-    console.log(arrayOfArrays);    
-    console.log('getCellValue, 0,0 -- ')
-    getCellValue(0,0)
+    useEffect(() => {
+        setTimeout(() => {
+            memoizePopulateArrayOfArrays();;
+            memoizeGenerateBombCoordinatesMap();
+            convertMapToCoordinatesArr();
+        },0)
+        console.log('//// Debug arrayOfArrays', arrayOfArrays);
+        console.log('/// debug bomb map', bombMap);
+    }, []);
+        
+      
+    
+
+
+    // generateBombCoordinatesArr();
+    // setBombsOnGridArr();
+    // setNumbersOnGridArr();
+    // console.log(arrayOfArrays);    
+    // console.log('getCellValue, 0,0 -- ')
+    // getCellValue(0,0)
 
   return (
     <div>
@@ -152,8 +204,10 @@ export default function Grid() {
             <tbody>
                 {arrayOfArrays.map((row, rowIndex) => (
                     <tr key={`row-${rowIndex}`}>
-                        {row.map((cellObj) => (
-                            <td key={cellObj.keyStr} onClick={() => handleClick(cellObj)}>{cellObj.exposedTorF ? cellObj.realValueInt: cellObj.defaultValStr}</td>
+                        {row.map((col, colIndex) => (
+                            // <td key={`cell-${rowIndex}-${colIndex}`} onClick={() => handleClick([rowIndex, colIndex])}>{arrayOfArrays[rowIndex][colIndex]['defaultValStr']}</td>
+                            <td onClick={() => handleClick([rowIndex, colIndex])}>{arrayOfArrays[rowIndex][colIndex].defaultValStr}</td>
+                            // <td>{arrayOfArrays[rowIndex][colIndex]}</td>
                         ))}
                     </tr>
                 ))}

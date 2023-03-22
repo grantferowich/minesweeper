@@ -10,16 +10,18 @@ import React, { useState } from 'react'
 // }
 
 
-export default function CellObj({keyStr='', realValueInt = 0}) {
-  let [defaultValStr, setDefaultValStr] = useState('?')
-  let [exposedTorF, setExposedTorF] = useState(false)
+// export default function CellObj({realValueInt = 0, defaultValStr}) {
+//   let [exposedTorF, setExposedTorF] = useState(false)
+//     //exposedStr, defaultValStr, valStrOrInt
 
-  const handleClick = () => {
-    setExposedTorF(true)
-  }
-  return (
-    <div onClick={handleClick}>
-        {exposedTorF ? realValueInt : defaultValStr}
-    </div>
-  )
-}
+  
+  
+
+
+
+//   return (
+//     <div>
+//         {/* <CellObj> */}
+//     </div>
+//   )
+// }
