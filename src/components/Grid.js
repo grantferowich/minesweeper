@@ -128,10 +128,9 @@ export default function Grid() {
 
     // ## HANDLE EVENTS
     const handleClick = (rowIndex, colIndex) => {
-        // let newArrayOfArrays = [...arrayOfArrays]
-        // newArrayOfArrays[rowIndex][colIndex].exposedToF = true
-        // setArrayOfArrays(newArrayOfArrays);
         exposeCell(rowIndex, colIndex)
+        // call recursive function
+        // stuff
     }
 
     // ## RENDER STATE
