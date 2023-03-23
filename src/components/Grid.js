@@ -60,64 +60,75 @@ export default function Grid() {
 
 
     // ## READ STATE
-    // const getCellValue = (rowInt, colInt) => {
-    //     return arrayOfArrays[rowInt][colInt]['realValueInt']
-    // }
+    const getCellValue = (rowInt, colInt) => {
+        return arrayOfArrays[rowInt][colInt]['realValueInt']
+    }
 
     // ## UPDATE STATE
     // util method for updating array of arrays
-    // const getBombCountOfCellInt = (rowInt, colInt) => {
-    //     // down, right, up, left, bottom right diag, bottom left diag, top left, top right
-    //     let coordinatesArr = [[1, 0], [0, 1], [-1, 0], [0, -1], [ 1, 1], [1, -1], [-1, -1,], [-1, 1]];
-    //     let countInt = 0;
-    //     let xInt = 0;
-    //     while (xInt < coordinatesArr.length){
-    //         let rowCoordinateToCheckInt = rowInt + coordinatesArr[xInt][0];
-    //         let colCoordinateToCheckInt = colInt + coordinatesArr[xInt][1];
-    //         if (rowCoordinateToCheckInt >= 0 && rowCoordinateToCheckInt < nInt && colCoordinateToCheckInt >= 0 && colCoordinateToCheckInt < nInt){
-    //             let cellValueToCheckStr = getCellValue(rowCoordinateToCheckInt, colCoordinateToCheckInt);
-    //             if (cellValueToCheckStr === '*'){
-    //                 countInt++;
-    //             }
-    //         }
-    //         xInt++
-    //     }
-    //     return countInt
-    // }
+    const getBombCountOfCellInt = (rowInt, colInt) => {
+        // down, right, up, left, bottom right diag, bottom left diag, top left, top right
+        let coordinatesArr = [[1, 0], [0, 1], [-1, 0], [0, -1], [ 1, 1], [1, -1], [-1, -1,], [-1, 1]];
+        let countInt = 0;
+        let xInt = 0;
+        while (xInt < coordinatesArr.length){
+            let rowCoordinateToCheckInt = rowInt + coordinatesArr[xInt][0];
+            let colCoordinateToCheckInt = colInt + coordinatesArr[xInt][1];
+            if (rowCoordinateToCheckInt >= 0 && rowCoordinateToCheckInt < nInt && colCoordinateToCheckInt >= 0 && colCoordinateToCheckInt < nInt){
+                let cellValueToCheckStr = getCellValue(rowCoordinateToCheckInt, colCoordinateToCheckInt);
+                if (cellValueToCheckStr === '*'){
+                    countInt++;
+                }
+            }
+            xInt++
+        }
+        return countInt
+    }
 
     // ## UPDATE STATE
     const updateCellValue = (rowInt, colInt, val) => {
-        let newArrayOfArrays = [...arrayOfArrays];
-        newArrayOfArrays[rowInt][colInt].valStrOrInt = val;
-        setArrayOfArrays(newArrayOfArrays);
-    }     
+        setArrayOfArrays(prevArray => {
+          const newArray = prevArray.map(row => {
+            return row.map(cell => {
+              if (cell.id === rowInt * nInt + colInt) {
+                return { ...cell, valStrOrInt: val };
+              } else {
+                return cell;
+              }
+            });
+          });
+          return newArray;
+        });
+    };
+      
 
     // UPDATE STATE
-    // const updateGridWithBombs = () => {
-    //         let xInt = 0;
-    //         while (xInt < bombArr.length){
-    //             let bombRowColStr = bombArr[xInt]
-    //             let bombLocationArr = bombRowColStr.split(',')
-    //             let rowInt = parseInt(bombLocationArr[0]);
-    //             let colInt = parseInt(bombLocationArr[1]);
-    //             updateCellValue(rowInt, colInt, "💣");
-    //             xInt++;
-    //         }
-    // }
+    const updateGridWithBombs = () => {
+            let xInt = 0;
+            console.log('bombArr', bombArr)
+            while (xInt < bombArr.length){
+                let bombRowColStr = bombArr[xInt]
+                let bombLocationArr = bombRowColStr.split(',')
+                let rowInt = parseInt(bombLocationArr[0]);
+                let colInt = parseInt(bombLocationArr[1]);
+                updateCellValue(rowInt, colInt, "💣");
+                xInt++;
+            }
+    }
 
     // ## UPDATE STATE
-    // const setNumbersOnGridArr = () => {
-    //     for (let rowInt = 0; rowInt < nInt; rowInt++){
-    //         for (let colInt = 0; colInt < nInt; colInt++){
-    //             let cellObj = arrayOfArrays[rowInt][colInt]
+    const updateGridWithNumbers = () => {
+        for (let rowInt = 0; rowInt < nInt; rowInt++){
+            for (let colInt = 0; colInt < nInt; colInt++){
+                let cellObj = arrayOfArrays[rowInt][colInt]
 
-    //             let valInt = getBombCountOfCellInt(rowInt, colInt)
-    //             if (cellObj['realValueInt'] !== "*"){
-    //                 updateCellValue(rowInt, colInt, valInt)
-    //             }
-    //         }
-    //     }
-    // }
+                let valInt = getBombCountOfCellInt(rowInt, colInt)
+                if (cellObj['realValueInt'] !== "💣"){
+                    updateCellValue(rowInt, colInt, valInt)
+                }
+            }
+        }
+    }
 
     // ## HANDLE EVENTS
     const handleClick = (rowIndex, colIndex) => {
@@ -131,8 +142,9 @@ export default function Grid() {
             memoizePopulateArrayOfArrays();
             memoizeGenerateBombCoordinatesArr();    
             // do something to update the array of arrays to include bombs
-            // updateGridWithBombs();
+            updateGridWithBombs();
             // do stuff to update the array of arrays to include bombs
+            // updateGridWithNumbers();
     }, []);
         
       
