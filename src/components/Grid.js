@@ -61,7 +61,7 @@ export default function Grid() {
 
     // ## READ STATE
     const getCellValue = (rowInt, colInt) => {
-        return arrayOfArrays[rowInt][colInt]['realValueInt']
+        return arrayOfArrays[rowInt][colInt].valStrOrInt
     }
 
     // ## UPDATE STATE
@@ -76,7 +76,8 @@ export default function Grid() {
             let colCoordinateToCheckInt = colInt + coordinatesArr[xInt][1];
             if (rowCoordinateToCheckInt >= 0 && rowCoordinateToCheckInt < nInt && colCoordinateToCheckInt >= 0 && colCoordinateToCheckInt < nInt){
                 let cellValueToCheckStr = getCellValue(rowCoordinateToCheckInt, colCoordinateToCheckInt);
-                if (cellValueToCheckStr === '*'){
+                console.log('cellValueToCheckStr', cellValueToCheckStr)
+                if (cellValueToCheckStr === '💣'){
                     countInt++;
                 }
             }
@@ -102,7 +103,7 @@ export default function Grid() {
     };
       
 
-    // UPDATE STATE
+    // ## UPDATE STATE
     const updateGridWithBombs = () => {
             let xInt = 0;
             console.log('bombArr', bombArr)
@@ -118,17 +119,48 @@ export default function Grid() {
 
     // ## UPDATE STATE
     const updateGridWithNumbers = () => {
-        for (let rowInt = 0; rowInt < nInt; rowInt++){
-            for (let colInt = 0; colInt < nInt; colInt++){
-                let cellObj = arrayOfArrays[rowInt][colInt]
-
-                let valInt = getBombCountOfCellInt(rowInt, colInt)
-                if (cellObj['realValueInt'] !== "💣"){
-                    updateCellValue(rowInt, colInt, valInt)
-                }
+        console.log('updateGridWithNumbers')
+        for (let x = 0; x < nInt; x++){
+            for (let y = 0; y < nInt; y++){
+                console.log(getBombCountOfCellInt(x,y))
             }
         }
-    }
+
+        // const updatedArray = []
+        // for (let rowInt = 0; rowInt < nInt; rowInt++){
+        //   const rowArray = []
+        //   for (let colInt = 0; colInt < nInt; colInt++){
+        //     let cellObj = arrayOfArrays[rowInt][colInt]
+        //     // let valInt = getBombCountOfCellInt(rowInt, colInt)
+        //     // if (cellObj['realValueInt'] !== "💣" && valInt > 0){
+        //     //   cellObj = {...cellObj, realValueInt: valInt}
+        //     // }
+        //     rowArray.push(cellObj)
+        //   }
+        //   updatedArray.push(rowArray)
+        // }
+        // setArrayOfArrays(updatedArray)
+    }   
+
+    // ## UPDATE STATE
+    // const updateGridWithNumbers = () => {
+    //     const updatedArray = []
+    //     for (let rowInt = 0; rowInt < nInt; rowInt++){
+    //       const rowArray = []
+    //       for (let colInt = 0; colInt < nInt; colInt++){
+    //         let cellObj = arrayOfArrays[rowInt][colInt]
+    //         let valInt = getBombCountOfCellInt(rowInt, colInt)
+    //         console.log(`valInt is === ${valInt}`)
+    //         if (cellObj.realValueInt !== "💣"){
+    //           cellObj = {...cellObj, realValueInt: valInt}
+    //         }
+    //         rowArray.push(cellObj)
+    //       }
+    //       updatedArray.push(rowArray)
+    //     }
+    //     setArrayOfArrays(updatedArray)
+    //   }
+
 
     // ## HANDLE EVENTS
     const handleClick = (rowIndex, colIndex) => {
@@ -144,7 +176,7 @@ export default function Grid() {
             // do something to update the array of arrays to include bombs
             updateGridWithBombs();
             // do stuff to update the array of arrays to include bombs
-            // updateGridWithNumbers();
+            updateGridWithNumbers();
     }, []);
         
       
