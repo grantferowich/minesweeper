@@ -175,8 +175,17 @@ export default function Grid() {
     // ## HANDLE EVENTS
     const handleClick = (rowIndex, colIndex) => {
         exposeCell(rowIndex, colIndex)
-        // call recursive function
-        // stuff
+
+        
+        // if the user clicked on a cell which has ValStrOrInt > 1, 
+            // expose the cell 
+            // terminate recursion 
+        // if the user clicked on a cell which has valStrOrInt === 0, 
+            // Expose the current cell
+            // call the function to recursively explore the 8 surrounding cells
+        // if the user clicked on a cell which has valStrOrInt === "💣"
+            // don't expose the current cell
+            // terminate recursion
     }
 
     // ## RENDER STATE
@@ -187,6 +196,7 @@ export default function Grid() {
             updateGridWithBombs();
             // do stuff to update the array of arrays to include bombs
             updateGridWithNumbers();
+            
 
     }, []);
 
