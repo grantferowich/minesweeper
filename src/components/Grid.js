@@ -60,25 +60,31 @@ export default function Grid() {
 
 
     // ## READ STATE
-    const getCellValue = (rowInt, colInt) => {
-        return arrayOfArrays[rowInt][colInt].valStrOrInt
-    }
+    // const getCellValue = (rowInt, colInt) => {
+    //     // console.log('// debug getCellValue', arrayOfArrays[rowInt][colInt].valStrOrInt)
+    //     // console.log('// debug getCellValue', arrayOfArrays)
+    //     // console.log('// debug getCellValue', arrayOfArrays[rowInt])
+    //     // return arrayOfArrays[rowInt][colInt].valStrOrInt
+    // }
 
     // ## UPDATE STATE
     // util method for updating array of arrays
     const getBombCountOfCellInt = (rowInt, colInt) => {
         // down, right, up, left, bottom right diag, bottom left diag, top left, top right
-        let coordinatesArr = [[1, 0], [0, 1], [-1, 0], [0, -1], [ 1, 1], [1, -1], [-1, -1,], [-1, 1]];
+        let coordinatesArr = [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [1, -1], [-1, -1,], [-1, 1]];
         let countInt = 0;
         let xInt = 0;
+        let nInt = arrayOfArrays.length;
+        // loop over coordinates, add 1 to counter for each bomb found
         while (xInt < coordinatesArr.length){
             let rowCoordinateToCheckInt = rowInt + coordinatesArr[xInt][0];
             let colCoordinateToCheckInt = colInt + coordinatesArr[xInt][1];
             if (rowCoordinateToCheckInt >= 0 && rowCoordinateToCheckInt < nInt && colCoordinateToCheckInt >= 0 && colCoordinateToCheckInt < nInt){
-                let cellValueToCheckStr = getCellValue(rowCoordinateToCheckInt, colCoordinateToCheckInt);
-                console.log('cellValueToCheckStr', cellValueToCheckStr)
-                if (cellValueToCheckStr === '💣'){
+                // the 
+                let cellObj = arrayOfArrays[rowCoordinateToCheckInt][colCoordinateToCheckInt]
+                if (cellObj.valStrOrInt === '💣'){
                     countInt++;
+               
                 }
             }
             xInt++
@@ -122,10 +128,14 @@ export default function Grid() {
         console.log('updateGridWithNumbers')
         for (let x = 0; x < nInt; x++){
             for (let y = 0; y < nInt; y++){
-                console.log(getBombCountOfCellInt(x,y))
+                let cellValue = getBombCountOfCellInt(x,y)
+                if (cellValue !== "💣" && cellValue > 0){
+                    updateCellValue(x,y,cellValue)
+                }
             }
         }
-
+        console.log(bombArr)
+        console.log(arrayOfArrays)
         // const updatedArray = []
         // for (let rowInt = 0; rowInt < nInt; rowInt++){
         //   const rowArray = []
@@ -177,18 +187,8 @@ export default function Grid() {
             updateGridWithBombs();
             // do stuff to update the array of arrays to include bombs
             updateGridWithNumbers();
+
     }, []);
-        
-      
-    
-
-
-    // generateBombCoordinatesArr();
-    // setBombsOnGridArr();
-    // setNumbersOnGridArr();
-    // console.log(arrayOfArrays);    
-    // console.log('getCellValue, 0,0 -- ')
-    // getCellValue(0,0)
 
   return (
     <div>
