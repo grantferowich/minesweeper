@@ -2,10 +2,12 @@ import React, { useCallback, useEffect, useState } from 'react';
 import './Grid.css';
 
 const nInt = 7;
+const totalSquaresInt = nInt * nInt
 // # of bombs on the grid
-const bombsInt = 7;
+const bombsInt = 2;
 let arrayOfArrays = []
 let bombsArr = []
+
     
 // ## UPDATE STATE
 function populateArrayOfArrays(){
@@ -28,7 +30,7 @@ function populateArrayOfArrays(){
     // ## UPDATE STATE
 const generateRandomCoordinateInt = () => {
         return parseInt(Math.random() * nInt);
-    }
+}
 
     // ## UPDATE STATE
 // const exposeCell = (rowIndex, colIndex) => {
@@ -47,15 +49,17 @@ const memoizeGenerateBombCoordinatesArr = async () => {
             }
             xInt++
         }
-    }
+}
 
     // ## UPDATE STATE
     // util method for updating array of arrays
-    const getBombCountOfCellInt = (rowInt, colInt) => {
+const getBombCountOfCellInt = (rowInt, colInt) => {
         // down, right, up, left, bottom right diag, bottom left diag, top left, top right
         let coordinatesArr = [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [1, -1], [-1, -1,], [-1, 1]];
         let countInt = 0;
         let xInt = 0;
+        
+
         let nInt = arrayOfArrays.length;
         // loop over coordinates, add 1 to counter for each bomb found
         while (xInt < coordinatesArr.length){
@@ -70,7 +74,7 @@ const memoizeGenerateBombCoordinatesArr = async () => {
             xInt++
         }
         return countInt
-    }
+}
 
     // ## UPDATE STATE
     // const updateCellValue = (rowInt, colInt, val) => {
@@ -78,7 +82,7 @@ const memoizeGenerateBombCoordinatesArr = async () => {
     // };
 
     // ## set initial state
-    const updateGridWithBombs = () => {
+const updateGridWithBombs = () => {
             let xInt = 0;
             while (xInt < bombsArr.length){
                 let bombRowColStr = bombsArr[xInt]
@@ -92,7 +96,7 @@ const memoizeGenerateBombCoordinatesArr = async () => {
     }
 
     // ## UPDATE STATE
-    const updateGridWithNumbers = () => {
+const updateGridWithNumbers = () => {
         for (let x = 0; x < nInt; x++){
             for (let y = 0; y < nInt; y++){
                 let cellValue = getBombCountOfCellInt(x,y)
@@ -111,21 +115,38 @@ const memoizeGenerateBombCoordinatesArr = async () => {
 
 
 
-        // ## Sequence to set initial state
-            populateArrayOfArrays();
-            memoizeGenerateBombCoordinatesArr();    
-            // do something to update the array of arrays to include bombs
-            updateGridWithBombs();
-            // do stuff to update the array of arrays to include bombs
-            updateGridWithNumbers();
-            // update grid with numbers and bombs working
-            // initial state === set -> looks good
-            console.log(arrayOfArrays)
- 
+    // ## Sequence to set initial state
+    populateArrayOfArrays();
+    memoizeGenerateBombCoordinatesArr();    
+    // do something to update the array of arrays to include bombs
+    updateGridWithBombs();
+    // do stuff to update the array of arrays to include bombs
+    updateGridWithNumbers();
+    // update grid with numbers and bombs working
+    // initial state === set -> looks good
+    // console.log(arrayOfArrays)
+    console.log(bombsArr)
 
+    
+            // does the number exposed === totalSquares - bombCount? 
+const countExposedCells = () => {
+    let exposedInt = 0
+    for (let rInt = 0; rInt < nInt; rInt++){
+        for (let cInt = 0; cInt < nInt; cInt++){
+            if (arrayOfArrays[rInt][cInt].exposedToF){
+                exposedInt++
+            }
+        }
+    }
+    return exposedInt
+}
 
 export default function Grid() {
     const [grid, setGrid] = useState(arrayOfArrays)
+    const [lossResultToF, setLossResultToF] = useState(false)
+    const [winResultToF, setWinResultToF] = useState(false)
+
+
     const traverseGrid = (rowInt, colInt) => {
         let coordinatesArr = [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [1, -1], [-1, -1,], [-1, 1]];
         const traverse = (r, c) => {
@@ -160,6 +181,14 @@ export default function Grid() {
         return traverse(rowInt, colInt)
     }
 
+    function checkVictory(){
+        let exposedInt = countExposedCells()
+        console.log(exposedInt)
+        return totalSquaresInt - bombsInt === exposedInt
+    }
+    
+
+
     const exposeCell = (rowIndex, colIndex) => {
        let newGrid = [...grid]
        newGrid[rowIndex][colIndex].exposedToF = true
@@ -189,18 +218,30 @@ export default function Grid() {
     // ## HANDLE EVENTS
     const handleClick = (rowIndex, colIndex) => {
         let cellValStrOrInt = grid[rowIndex][colIndex].valStrOrInt
-        console.log('cellValStrOrInt', cellValStrOrInt)
 
-        // exposeCell(rowIndex, colIndex);
-        // current cell val 0
         if (cellValStrOrInt === 0){
             traverseGrid(rowIndex, colIndex);
         }
+        if (cellValStrOrInt > 0){
+            exposeCell(rowIndex, colIndex)
+        }
+        if (cellValStrOrInt === "💣"){
+            setLossResultToF(true)
+        }
         
+        const victoryStatusToF = checkVictory()
+        console.log(victoryStatusToF)
+        
+        if (victoryStatusToF){
+            setWinResultToF(true)
+        }
     }
 
   return (
+
     <div>
+        <div>{lossResultToF ? <p>Game over 😞 </p> : null}</div>
+        <div>{winResultToF ? <p>Victory! 🎉 </p> : null}</div>
         <table>
             <tbody>
                 {grid.map((row, rowIndex) => (
