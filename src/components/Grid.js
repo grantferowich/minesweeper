@@ -240,7 +240,7 @@ export default function Grid() {
   return (
 
     <div>
-        <div>{lossResultToF ? <p>Game over 😞 </p> : null}</div>
+        <div>{lossResultToF ? <p>Game over. You lost 😞 </p> : null}</div>
         <div>{winResultToF ? <p>Victory! 🎉 </p> : null}</div>
         <table>
             <tbody>
